@@ -6,10 +6,12 @@ import {
   Clock4,
   Download,
   Grid2x2,
+  Landmark,
   LifeBuoy,
   MessageSquare,
   Settings,
   SquareGanttChart,
+  TicketMinus,
   Upload,
   Users,
   Wallet,
@@ -70,6 +72,9 @@ export const NAV_ITEMS: NavItem[] = [
       },
     ],
   },
+
+  { key: "lottery", label: "Lottery", icon: TicketMinus, href: "/lottary" },
+  { key: "loan", label: "Loan", icon: Landmark, href: "/loans" },
 
   {
     key: "positions",
