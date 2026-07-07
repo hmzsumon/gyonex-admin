@@ -105,7 +105,7 @@ export default function AdminLotteryPage() {
         isAutoDraw: form.isAutoDraw,
       }).unwrap();
 
-      toast.success(res?.message || "Lottery event created successfully");
+      toast.success("Lottery event created successfully");
       setShowCreate(false);
       setForm(createDefaultForm());
     } catch (error: any) {
