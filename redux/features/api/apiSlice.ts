@@ -1,6 +1,8 @@
+/* ────────── base RTK Query api slice imports ────────── */
 import { baseQueryWithReauth } from "@/redux/baseQueryWithReauth";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
+/* ────────── base RTK Query api slice with lottery tags ────────── */
 export const apiSlice = createApi({
   reducerPath: "api",
 
@@ -27,6 +29,11 @@ export const apiSlice = createApi({
     "Accounts",
     "Positions",
     "Deposit",
+    "Loans",
+    "Wallets",
+    "LotteryWinners",
+    "LotteryTickets",
+    "Lottery",
   ],
   endpoints: (builder) => ({}),
 });
