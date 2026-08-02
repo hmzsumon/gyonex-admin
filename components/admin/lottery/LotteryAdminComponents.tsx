@@ -55,6 +55,9 @@ export const LOTTERY_STATUS_LABEL: Record<LotteryStatus, string> = {
   cancelled: "Cancelled",
 };
 
+const LOTTERY_INPUT_CLASS =
+  "h-[46px] w-full rounded-[14px] border border-white/10 bg-[#090B0F] px-[14px] text-white outline-none placeholder:text-white/30 focus:border-emerald-400/60 focus:ring-[3px] focus:ring-emerald-400/10";
+
 /* ────────── lottery admin formatting helpers ────────── */
 export const formatMoney = (value?: number, asset = "USDT") =>
   `${Number(value ?? 0).toLocaleString("en-US", { maximumFractionDigits: 2 })} ${asset}`;
@@ -200,17 +203,17 @@ export function LotteryFilters({
   );
 }
 
-/* ────────── lottery admin create modal component ────────── */
-export function LotteryCreateModal({
+/* ────────── lottery admin create form component ────────── */
+export function LotteryCreateForm({
   form,
   loading,
-  onClose,
+  onCancel,
   onChange,
   onSubmit,
 }: {
   form: LotteryAdminFormState;
   loading: boolean;
-  onClose: () => void;
+  onCancel: () => void;
   onChange: (patch: Partial<LotteryAdminFormState>) => void;
   onSubmit: () => void;
 }) {
@@ -254,239 +257,238 @@ export function LotteryCreateModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
-      <div className="my-8 w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#0E1014] shadow-2xl shadow-black/50">
-        {/* ────────── lottery admin modal header section ────────── */}
-        <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
+    <div className="w-full overflow-hidden rounded-3xl border border-white/10 bg-[#0E1014] shadow-2xl shadow-black/50">
+      {/* ────────── lottery admin form header section ────────── */}
+      <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-400">
+            New lottery event
+          </p>
+          <h2 className="mt-1 text-xl font-black text-white">
+            Create Lottery Event
+          </h2>
+          <p className="mt-1 text-sm text-white/45">
+            Create event, ticket rules and unlimited prize tiers from here.
+          </p>
+        </div>
+        <button
+          onClick={onCancel}
+          aria-label="Back to lottery events"
+          className="rounded-xl bg-white/[0.04] p-2 text-white/60 hover:text-white"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* ────────── lottery admin event information section ────────── */}
+      <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-3">
+        <LotteryInput label="Event Type">
+          <select
+            value={form.eventType}
+            onChange={(e) =>
+              onChange({ eventType: e.target.value as LotteryEventType })
+            }
+            className={LOTTERY_INPUT_CLASS}
+          >
+            <option value="WEEKLY">Weekly Draw</option>
+            <option value="HALF_MONTHLY">15 Days Draw</option>
+            <option value="MONTHLY">Monthly Draw</option>
+          </select>
+        </LotteryInput>
+
+        <LotteryInput label="Title">
+          <input
+            value={form.title}
+            onChange={(e) => onChange({ title: e.target.value })}
+            className={LOTTERY_INPUT_CLASS}
+            placeholder="Weekly Mega Draw"
+          />
+        </LotteryInput>
+
+        <LotteryInput label="Ticket Price">
+          <input
+            type="number"
+            value={form.ticketPrice}
+            onChange={(e) => onChange({ ticketPrice: e.target.value })}
+            className={LOTTERY_INPUT_CLASS}
+            placeholder="5"
+          />
+        </LotteryInput>
+
+        <LotteryInput label="Max Tickets">
+          <input
+            type="number"
+            value={form.maxTickets}
+            onChange={(e) => onChange({ maxTickets: e.target.value })}
+            className={LOTTERY_INPUT_CLASS}
+            placeholder="10000"
+          />
+        </LotteryInput>
+
+        <LotteryInput label="Start Date">
+          <input
+            type="datetime-local"
+            value={form.startDate}
+            onChange={(e) => onChange({ startDate: e.target.value })}
+            className={LOTTERY_INPUT_CLASS}
+          />
+        </LotteryInput>
+
+        <LotteryInput label="End Date">
+          <input
+            type="datetime-local"
+            value={form.endDate}
+            onChange={(e) => onChange({ endDate: e.target.value })}
+            className={LOTTERY_INPUT_CLASS}
+          />
+        </LotteryInput>
+
+        <LotteryInput label="Draw Date">
+          <input
+            type="datetime-local"
+            value={form.drawDate}
+            onChange={(e) => onChange({ drawDate: e.target.value })}
+            className={LOTTERY_INPUT_CLASS}
+          />
+        </LotteryInput>
+
+        <LotteryInput label="Status">
+          <select
+            value={form.status}
+            onChange={(e) =>
+              onChange({ status: e.target.value as LotteryStatus })
+            }
+            className={LOTTERY_INPUT_CLASS}
+          >
+            <option value="open">Open</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="draft">Draft</option>
+          </select>
+        </LotteryInput>
+
+        <label className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-400">
-              New lottery event
+            <p className="text-sm font-bold text-white">Auto Draw</p>
+            <p className="mt-1 text-xs text-white/45">
+              Run draw automatically after draw date.
             </p>
-            <h2 className="mt-1 text-xl font-black text-white">
-              Create Lottery Event
-            </h2>
-            <p className="mt-1 text-sm text-white/45">
-              Create event, ticket rules and unlimited prize tiers from here.
+          </div>
+          <input
+            type="checkbox"
+            checked={form.isAutoDraw}
+            onChange={(e) => onChange({ isAutoDraw: e.target.checked })}
+            className="h-5 w-5 accent-emerald-400"
+          />
+        </label>
+
+        <div className="md:col-span-2 xl:col-span-3">
+          <LotteryInput label="Description">
+            <textarea
+              value={form.description}
+              onChange={(e) => onChange({ description: e.target.value })}
+              className={`${LOTTERY_INPUT_CLASS} min-h-[96px] resize-none py-3`}
+              placeholder="Short description for users"
+            />
+          </LotteryInput>
+        </div>
+      </div>
+
+      {/* ────────── lottery admin dynamic prize tier section ────────── */}
+      <div className="border-t border-white/10 p-5">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-base font-black text-white">Prize Setup</h3>
+            <p className="mt-1 text-xs text-white/45">
+              Add 1st, 2nd, 3rd or unlimited prize rows with custom quantity and
+              amount.
             </p>
           </div>
           <button
-            onClick={onClose}
-            className="rounded-xl bg-white/[0.04] p-2 text-white/60 hover:text-white"
+            onClick={addPrizeTier}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300"
           >
-            <X className="h-5 w-5" />
+            <Plus className="h-4 w-4" /> Add Prize
           </button>
         </div>
 
-        {/* ────────── lottery admin event information section ────────── */}
-        <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-3">
-          <LotteryInput label="Event Type">
-            <select
-              value={form.eventType}
-              onChange={(e) =>
-                onChange({ eventType: e.target.value as LotteryEventType })
-              }
-              className="lottery-input"
+        <div className="space-y-3">
+          {form.prizeTiers.map((prize, index) => (
+            <div
+              key={index}
+              className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:grid-cols-[1fr_140px_160px_44px]"
             >
-              <option value="WEEKLY">Weekly Draw</option>
-              <option value="HALF_MONTHLY">15 Days Draw</option>
-              <option value="MONTHLY">Monthly Draw</option>
-            </select>
-          </LotteryInput>
-
-          <LotteryInput label="Title">
-            <input
-              value={form.title}
-              onChange={(e) => onChange({ title: e.target.value })}
-              className="lottery-input"
-              placeholder="Weekly Mega Draw"
-            />
-          </LotteryInput>
-
-          <LotteryInput label="Ticket Price">
-            <input
-              type="number"
-              value={form.ticketPrice}
-              onChange={(e) => onChange({ ticketPrice: e.target.value })}
-              className="lottery-input"
-              placeholder="5"
-            />
-          </LotteryInput>
-
-          <LotteryInput label="Max Tickets">
-            <input
-              type="number"
-              value={form.maxTickets}
-              onChange={(e) => onChange({ maxTickets: e.target.value })}
-              className="lottery-input"
-              placeholder="10000"
-            />
-          </LotteryInput>
-
-          <LotteryInput label="Start Date">
-            <input
-              type="datetime-local"
-              value={form.startDate}
-              onChange={(e) => onChange({ startDate: e.target.value })}
-              className="lottery-input"
-            />
-          </LotteryInput>
-
-          <LotteryInput label="End Date">
-            <input
-              type="datetime-local"
-              value={form.endDate}
-              onChange={(e) => onChange({ endDate: e.target.value })}
-              className="lottery-input"
-            />
-          </LotteryInput>
-
-          <LotteryInput label="Draw Date">
-            <input
-              type="datetime-local"
-              value={form.drawDate}
-              onChange={(e) => onChange({ drawDate: e.target.value })}
-              className="lottery-input"
-            />
-          </LotteryInput>
-
-          <LotteryInput label="Status">
-            <select
-              value={form.status}
-              onChange={(e) =>
-                onChange({ status: e.target.value as LotteryStatus })
-              }
-              className="lottery-input"
-            >
-              <option value="open">Open</option>
-              <option value="upcoming">Upcoming</option>
-              <option value="draft">Draft</option>
-            </select>
-          </LotteryInput>
-
-          <label className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <div>
-              <p className="text-sm font-bold text-white">Auto Draw</p>
-              <p className="mt-1 text-xs text-white/45">
-                Run draw automatically after draw date.
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              checked={form.isAutoDraw}
-              onChange={(e) => onChange({ isAutoDraw: e.target.checked })}
-              className="h-5 w-5 accent-emerald-400"
-            />
-          </label>
-
-          <div className="md:col-span-2 xl:col-span-3">
-            <LotteryInput label="Description">
-              <textarea
-                value={form.description}
-                onChange={(e) => onChange({ description: e.target.value })}
-                className="lottery-input min-h-[96px] resize-none"
-                placeholder="Short description for users"
+              <input
+                value={prize.title}
+                onChange={(e) =>
+                  updatePrizeTier(index, { title: e.target.value })
+                }
+                className={LOTTERY_INPUT_CLASS}
+                placeholder="1st Prize"
               />
-            </LotteryInput>
-          </div>
-        </div>
-
-        {/* ────────── lottery admin dynamic prize tier section ────────── */}
-        <div className="border-t border-white/10 p-5">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-base font-black text-white">Prize Setup</h3>
-              <p className="mt-1 text-xs text-white/45">
-                Add 1st, 2nd, 3rd or unlimited prize rows with custom quantity
-                and amount.
-              </p>
-            </div>
-            <button
-              onClick={addPrizeTier}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300"
-            >
-              <Plus className="h-4 w-4" /> Add Prize
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {form.prizeTiers.map((prize, index) => (
-              <div
-                key={index}
-                className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:grid-cols-[1fr_140px_160px_44px]"
+              <input
+                type="number"
+                value={prize.quantity}
+                onChange={(e) =>
+                  updatePrizeTier(index, { quantity: Number(e.target.value) })
+                }
+                className={LOTTERY_INPUT_CLASS}
+                placeholder="Quantity"
+              />
+              <input
+                type="number"
+                value={prize.amount}
+                onChange={(e) =>
+                  updatePrizeTier(index, { amount: Number(e.target.value) })
+                }
+                className={LOTTERY_INPUT_CLASS}
+                placeholder="Amount"
+              />
+              <button
+                onClick={() => deletePrizeTier(index)}
+                disabled={form.prizeTiers.length <= 1}
+                className="flex h-[46px] items-center justify-center rounded-2xl border border-rose-400/30 bg-rose-400/10 text-rose-300 disabled:opacity-40"
               >
-                <input
-                  value={prize.title}
-                  onChange={(e) =>
-                    updatePrizeTier(index, { title: e.target.value })
-                  }
-                  className="lottery-input"
-                  placeholder="1st Prize"
-                />
-                <input
-                  type="number"
-                  value={prize.quantity}
-                  onChange={(e) =>
-                    updatePrizeTier(index, { quantity: Number(e.target.value) })
-                  }
-                  className="lottery-input"
-                  placeholder="Quantity"
-                />
-                <input
-                  type="number"
-                  value={prize.amount}
-                  onChange={(e) =>
-                    updatePrizeTier(index, { amount: Number(e.target.value) })
-                  }
-                  className="lottery-input"
-                  placeholder="Amount"
-                />
-                <button
-                  onClick={() => deletePrizeTier(index)}
-                  disabled={form.prizeTiers.length <= 1}
-                  className="flex h-[46px] items-center justify-center rounded-2xl border border-rose-400/30 bg-rose-400/10 text-rose-300 disabled:opacity-40"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-bold text-white/40">
-                Total Winner Quantity
-              </p>
-              <p className="mt-1 text-2xl font-black text-white">
-                {totalWinners}
-              </p>
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-bold text-white/40">
-                Total Prize Budget
-              </p>
-              <p className="mt-1 text-2xl font-black text-emerald-300">
-                {formatMoney(totalPrize)}
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* ────────── lottery admin modal action section ────────── */}
-        <div className="flex flex-col-reverse gap-3 border-t border-white/10 p-5 sm:flex-row sm:justify-end">
-          <button
-            onClick={onClose}
-            className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-bold text-white/70 hover:text-white"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onSubmit}
-            disabled={loading}
-            className="rounded-2xl bg-emerald-400 px-6 py-3 text-sm font-black text-black disabled:opacity-60"
-          >
-            {loading ? "Creating..." : "Create Lottery"}
-          </button>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <p className="text-xs font-bold text-white/40">
+              Total Winner Quantity
+            </p>
+            <p className="mt-1 text-2xl font-black text-white">
+              {totalWinners}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <p className="text-xs font-bold text-white/40">
+              Total Prize Budget
+            </p>
+            <p className="mt-1 text-2xl font-black text-emerald-300">
+              {formatMoney(totalPrize)}
+            </p>
+          </div>
         </div>
+      </div>
+
+      {/* ────────── lottery admin form action section ────────── */}
+      <div className="flex flex-col-reverse gap-3 border-t border-white/10 p-5 sm:flex-row sm:justify-end">
+        <button
+          onClick={onCancel}
+          className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-bold text-white/70 hover:text-white"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={onSubmit}
+          disabled={loading}
+          className="rounded-2xl bg-emerald-400 px-6 py-3 text-sm font-black text-black disabled:opacity-60"
+        >
+          {loading ? "Creating..." : "Create Lottery"}
+        </button>
       </div>
     </div>
   );
