@@ -117,18 +117,18 @@ export default function SingleWithdraw({
   /* ────────── UI ────────── */
   return (
     <main className="min-h-screen bg-[#0B0D12] text-[#E6E6E6]">
-      <div className="mx-auto max-w-5xl px-2 py-4 sm:p-6">
-        <Card className="px-4 overflow-hidden">
+      <div className="mx-auto max-w-5xl py-4 ">
+        <Card className="px-1 overflow-hidden">
           {/* ────────── header ────────── */}
-          <div className="border-b border-white/10 p-6 text-center">
+          <div className="border-b border-white/10 py-6 text-center">
             <h2 className="text-xl font-semibold">
               <span
                 className={`mr-2 ${
                   status === "pending"
                     ? "text-[#FF6A1A]"
                     : status === "approved"
-                    ? "text-emerald-400"
-                    : "text-rose-400"
+                      ? "text-emerald-400"
+                      : "text-rose-400"
                 }`}
               >
                 {status ? status.charAt(0).toUpperCase() + status.slice(1) : ""}
@@ -138,17 +138,17 @@ export default function SingleWithdraw({
           </div>
 
           {/* ────────── content ────────── */}
-          <div className="px-2 py-4">
+          <div className=" py-4">
             <div className="rounded-lg border border-white/10">
               <div className="grid border border-white/10 grid-cols-2 gap-2 ">
                 <div className="border-r border-white/10">
                   <Row label="User name:">
-                    <span className="font-semibold">{name || "-"}</span>
+                    <span className="font-semibold text-sm">{name || "-"}</span>
                   </Row>
                 </div>
                 <div>
                   <Row label="User Id:">
-                    <span className="flex items-center gap-2 font-semibold">
+                    <span className="flex items-center gap-2 font-semibold text-sm">
                       {customerId || "-"}
                       {userId && (
                         <Link
@@ -167,12 +167,16 @@ export default function SingleWithdraw({
               <div className="grid border border-white/10   grid-cols-2 gap-2 ">
                 <div className="border-r border-white/10">
                   <Row label="Phone:">
-                    <span className="font-semibold">{phone || "-"}</span>
+                    <span className="font-semibold text-sm">
+                      {phone || "-"}
+                    </span>
                   </Row>
                 </div>
                 <div>
                   <Row label="Amount:">
-                    <span className="font-semibold">{fmtUSD(amount)}</span>
+                    <span className="font-semibold text-sm">
+                      {fmtUSD(amount)}
+                    </span>
                   </Row>
                 </div>
               </div>
@@ -190,7 +194,9 @@ export default function SingleWithdraw({
                 </div>
                 <div>
                   <Row label="Charge:">
-                    <span className="font-semibold">{fmtUSD(charge)}</span>
+                    <span className="font-semibold text-red-500">
+                      {fmtUSD(charge)}
+                    </span>
                   </Row>
                 </div>
               </div>
@@ -199,7 +205,7 @@ export default function SingleWithdraw({
                 <span className="font-semibold">{netWork}</span>
               </Row>
               <Row label="Address:">
-                <span className="flex items-center gap-2 font-semibold">
+                <span className="flex items-center text-xs gap-2 font-semibold">
                   {netWorkAddress}
 
                   <CopyToClipboard text={netWorkAddress} />

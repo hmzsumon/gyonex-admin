@@ -19,6 +19,11 @@ export type AdminUserRow = {
   is_active: boolean;
   is_block?: boolean;
   is_withdraw_block?: boolean /* ────────── added ────────── */;
+
+  /* ────────── per-user withdraw rules ────────── */
+  require_team_activation?: boolean;
+  required_team_members?: number;
+  addNewMember?: number;
   email_verified?: boolean /* ────────── added ────────── */;
   two_factor_enabled?: boolean /* ────────── added ────────── */;
   kyc_verified?: boolean;
@@ -157,6 +162,7 @@ export const adminUsersApi = apiSlice.injectEndpoints({
         sortOrder?: "asc" | "desc";
         role?: string;
         is_active?: "true" | "false";
+        require_team_activation?: "true" | "false";
       }
     >({
       query: (q) => {
@@ -168,14 +174,18 @@ export const adminUsersApi = apiSlice.injectEndpoints({
         if (q.sortOrder) params.set("sortOrder", q.sortOrder);
         if (q.role) params.set("role", q.role);
         if (q.is_active) params.set("is_active", q.is_active);
+        if (q.require_team_activation)
+          params.set("require_team_activation", q.require_team_activation);
         const qs = params.toString();
         return { url: `/admin/users${qs ? `?${qs}` : ""}` };
       },
+      providesTags: ["Users"],
     }),
 
     /* ────────── details endpoint ────────── */
     getUserById: builder.query<UserDetailsResponse, { id: string }>({
       query: ({ id }) => ({ url: `/admin/users/${id}` }),
+      providesTags: (_r, _e, { id }) => [{ type: "User" as const, id }],
     }),
 
     /* ────────── transactions endpoint ────────── */
@@ -207,6 +217,57 @@ export const adminUsersApi = apiSlice.injectEndpoints({
         return { url: `/admin/users/${id}/transactions${qs ? `?${qs}` : ""}` };
       },
     }),
+
+    /* ══════════════════════════════════════════════════════════
+       Per-user withdraw rules
+       ────────────────────────────────────────────────────────
+       Team-activation শর্ত ডিফল্টে কারো ওপর নেই। এখান থেকে
+       নির্দিষ্ট ইউজারের ওপর বসানো / তুলে নেওয়া যায়।
+       ══════════════════════════════════════════════════════════ */
+
+    /* ────────── single user ────────── */
+    updateWithdrawRules: builder.mutation<
+      { success: boolean; message: string; user: Partial<AdminUserRow> },
+      {
+        id: string;
+        require_team_activation?: boolean;
+        required_team_members?: number;
+        is_withdraw_block?: boolean;
+      }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/admin/users/${id}/withdraw-rules`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_r, _e, { id }) => [
+        { type: "User" as const, id },
+        "Users",
+      ],
+    }),
+
+    /* ────────── bulk ────────── */
+    bulkUpdateWithdrawRules: builder.mutation<
+      {
+        success: boolean;
+        message: string;
+        matched: number;
+        modified: number;
+      },
+      {
+        userIds: string[];
+        require_team_activation?: boolean;
+        required_team_members?: number;
+        is_withdraw_block?: boolean;
+      }
+    >({
+      query: (body) => ({
+        url: `/admin/users/withdraw-rules/bulk`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
@@ -214,4 +275,6 @@ export const {
   useGetAllUsersQuery,
   useGetUserByIdQuery,
   useGetUserTransactionsQuery,
+  useUpdateWithdrawRulesMutation,
+  useBulkUpdateWithdrawRulesMutation,
 } = adminUsersApi;

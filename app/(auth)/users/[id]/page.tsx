@@ -2,6 +2,7 @@
 "use client";
 import UserKeyStat from "@/components/admin/UserKeyStat";
 import UserPropertyItem from "@/components/admin/UserPropertyItem";
+import WithdrawRulesCard from "@/components/admin/WithdrawRulesCard";
 import { useGetUserByIdQuery } from "@/redux/features/admin/adminUsersApi";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -173,6 +174,9 @@ export default function AdminUserDetailsPage() {
           />
         </section>
 
+        {/* ────────── withdraw rules (admin controlled) ────────── */}
+        <WithdrawRulesCard user={user} />
+
         {/* ────────── user properties ────────── */}
         <section className="rounded-2xl border border-white/10 bg-[#0E1014] p-6">
           <h3 className="mb-4 text-sm font-semibold text-white/80">
@@ -214,6 +218,18 @@ export default function AdminUserDetailsPage() {
               <UserPropertyItem
                 label="Withdraw Block"
                 value={String(user.is_withdraw_block)}
+              />
+              <UserPropertyItem
+                label="Team Rule Applied"
+                value={String(!!user.require_team_activation)}
+              />
+              <UserPropertyItem
+                label="Members Activated"
+                value={`${user.addNewMember ?? 0}${
+                  user.require_team_activation
+                    ? ` / ${user.required_team_members ?? 3}`
+                    : ""
+                }`}
               />
               <UserPropertyItem
                 label="AI Trade Active"

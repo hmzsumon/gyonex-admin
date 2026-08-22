@@ -6,6 +6,7 @@ import {
   DataGrid,
   GridColDef,
   GridRenderCellParams,
+  GridRowSelectionModel,
   GridSortModel,
 } from "@mui/x-data-grid";
 import Link from "next/link";
@@ -23,6 +24,27 @@ const StatusPill = ({ active }: { active: boolean }) => (
     {active ? "active" : "inactive"}
   </span>
 );
+
+const TeamRulePill = ({ row }: { row: AdminUserRow }) => {
+  if (!row?.require_team_activation)
+    return <span className="text-xs text-white/30">—</span>;
+
+  const activated = Number(row.addNewMember ?? 0);
+  const required = Number(row.required_team_members ?? 3);
+  const met = activated >= required;
+
+  return (
+    <span
+      className={
+        met
+          ? "rounded-full border border-emerald-400/30 bg-emerald-400/15 px-2 py-0.5 text-xs text-emerald-400"
+          : "rounded-full border border-amber-400/30 bg-amber-400/15 px-2 py-0.5 text-xs text-amber-300"
+      }
+    >
+      {activated}/{required}
+    </span>
+  );
+};
 
 /* ────────── safe access helpers ────────── */
 const toDateMs = (iso?: string | null) =>
@@ -65,6 +87,17 @@ const columns: GridColDef<AdminUserRow>[] = [
       toDateLabel((p?.row?.createdAt as string | undefined) ?? null),
   },
   {
+    field: "require_team_activation",
+    headerName: "Team Rule",
+    width: 120,
+    align: "center",
+    headerAlign: "center",
+    sortable: false,
+    renderCell: (p: GridRenderCellParams<AdminUserRow>) => (
+      <TeamRulePill row={p.row} />
+    ),
+  },
+  {
     field: "view",
     headerName: "",
     width: 80,
@@ -98,6 +131,9 @@ export default function AdminUsersTable(props: {
   onPageSizeChange: (n: number) => void;
   onSortChange: (m: GridSortModel) => void;
   initialSort?: GridSortModel;
+  /* ────────── bulk selection ────────── */
+  selectionModel?: GridRowSelectionModel;
+  onSelectionChange?: (m: GridRowSelectionModel) => void;
 }) {
   const {
     rows,
@@ -109,11 +145,13 @@ export default function AdminUsersTable(props: {
     onPageSizeChange,
     onSortChange,
     initialSort,
+    selectionModel,
+    onSelectionChange,
   } = props;
 
   const dgRows = useMemo(
     () => rows.map((u) => ({ id: u._id ?? crypto.randomUUID(), ...u })),
-    [rows]
+    [rows],
   );
 
   return (
@@ -135,6 +173,11 @@ export default function AdminUsersTable(props: {
         initialState={
           initialSort ? { sorting: { sortModel: initialSort } } : undefined
         }
+        /* community DataGrid এ header checkbox এমনিতেই শুধু
+           visible rows সিলেক্ট করে — server pagination এর জন্য যা দরকার */
+        checkboxSelection={!!onSelectionChange}
+        rowSelectionModel={selectionModel}
+        onRowSelectionModelChange={(m) => onSelectionChange?.(m)}
         disableRowSelectionOnClick
         columnHeaderHeight={44}
         getRowHeight={() => 56}
