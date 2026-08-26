@@ -43,6 +43,10 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Ai Accounts",
     icon: Bot,
     href: "/ai-accounts",
+    children: [
+      { label: "All Accounts", href: "/ai-accounts" },
+      { label: "Manage Plans", href: "/ai-accounts/plans" },
+    ],
   },
 
   {

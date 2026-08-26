@@ -102,10 +102,60 @@ export interface IAiPlan {
 
 export const aiAccountApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    /* ────────── get ai plans ────────── */
+    /* ────────── get ai plans (active only) ────────── */
     getAiPlans: builder.query<{ success: true; items: IAiPlan[] }, void>({
       query: () => ({ url: "/ai-plans" }),
       providesTags: ["Accounts"],
+    }),
+
+    /* ────────── get all ai plans for admin (active + inactive) ────────── */
+    getAllAiPlansAdmin: builder.query<{ success: true; items: IAiPlan[] }, void>({
+      query: () => ({ url: "/admin/ai-plans" }),
+      providesTags: ["AiPlans"],
+    }),
+
+    /* ────────── create ai plan (auto-activates an admin account) ────────── */
+    createAiPlan: builder.mutation<
+      { success: true; message: string; plan: IAiPlan; adminAccount: IAccount | null },
+      {
+        key: string;
+        title: string;
+        subtitle: string;
+        amount: number;
+        rows?: IAiPlanRow[];
+        sortOrder?: number;
+        isActive?: boolean;
+      }
+    >({
+      query: (body) => ({ url: "/admin/ai-plans", method: "POST", body }),
+      invalidatesTags: ["AiPlans", "Accounts"],
+    }),
+
+    /* ────────── update ai plan (price/name/subtitle/rows/order/active) ────────── */
+    updateAiPlan: builder.mutation<
+      { success: true; message: string; plan: IAiPlan },
+      {
+        id: string;
+        title?: string;
+        subtitle?: string;
+        amount?: number;
+        rows?: IAiPlanRow[];
+        sortOrder?: number;
+        isActive?: boolean;
+      }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/admin/ai-plans/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["AiPlans", "Accounts"],
+    }),
+
+    /* ────────── delete ai plan (blocked while accounts are linked) ────────── */
+    deleteAiPlan: builder.mutation<{ success: true; message: string }, { id: string }>({
+      query: ({ id }) => ({ url: `/admin/ai-plans/${id}`, method: "DELETE" }),
+      invalidatesTags: ["AiPlans"],
     }),
 
     createAiAccount: builder.mutation<
@@ -263,6 +313,10 @@ export const aiAccountApi = apiSlice.injectEndpoints({
 
 export const {
   useGetAiPlansQuery,
+  useGetAllAiPlansAdminQuery,
+  useCreateAiPlanMutation,
+  useUpdateAiPlanMutation,
+  useDeleteAiPlanMutation,
   useCreateAiAccountMutation,
   useGetMyAiAccountsQuery,
   useUpdateAccountMutation,

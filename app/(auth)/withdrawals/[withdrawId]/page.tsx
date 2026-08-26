@@ -174,7 +174,7 @@ export default function SingleWithdraw({
                 </div>
                 <div>
                   <Row label="Amount:">
-                    <span className="font-semibold text-sm">
+                    <span className="font-semibold text-sms">
                       {fmtUSD(amount)}
                     </span>
                   </Row>

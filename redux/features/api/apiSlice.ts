@@ -34,6 +34,7 @@ export const apiSlice = createApi({
     "LotteryWinners",
     "LotteryTickets",
     "Lottery",
+    "AiPlans",
   ],
   endpoints: (builder) => ({}),
 });
