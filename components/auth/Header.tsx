@@ -3,6 +3,7 @@
 import { Bell, CircleUserRound, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { useGetAdminNotificationsQuery } from "@/redux/features/notifications/notificationApi";
 import CapitaliseLogo from "../branding/CapitaliseLogo";
 import NotificationDrawer from "./NotificationDrawer";
 import UserMenu from "./UserMenu";
@@ -19,6 +20,10 @@ export default function Header({ open, onToggle }: Props) {
   const [userOpen, setUserOpen] = useState(false);
 
   const { user } = useSelector((state: any) => state.auth);
+
+  // ব্যাজের জন্য — ড্রয়ার বন্ধ থাকলেও আনরিড কাউন্ট জানা দরকার
+  const { data: notifData } = useGetAdminNotificationsQuery();
+  const unreadCount = notifData?.notifications?.length ?? 0;
 
   // ESC দিয়ে যে কোনো ওভারলে/পপওভার বন্ধ
   useEffect(() => {
@@ -83,7 +88,7 @@ export default function Header({ open, onToggle }: Props) {
 
           {/* নোটিফিকেশন : সব স্ক্রিনে */}
           <button
-            className="rounded-lg p-2 text-neutral-300 hover:bg-neutral-900 hover:text-white"
+            className="relative rounded-lg p-2 text-neutral-300 hover:bg-neutral-900 hover:text-white"
             onClick={() => {
               setNotifOpen(true);
               setUserOpen(false);
@@ -93,6 +98,11 @@ export default function Header({ open, onToggle }: Props) {
             aria-expanded={notifOpen}
           >
             <Bell size={20} />
+            {unreadCount > 0 ? (
+              <span className="absolute right-1 top-1 flex h-2 w-2 items-center justify-center rounded-full bg-red-500">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+              </span>
+            ) : null}
           </button>
 
           {/* ইউজার মেনু (ডেস্কটপে) */}

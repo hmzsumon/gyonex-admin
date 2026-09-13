@@ -1,7 +1,38 @@
 import { apiSlice } from "../api/apiSlice";
 
+export type WithdrawSettings = {
+  key?: string;
+  feePercent: number;
+  minAmount: number;
+  maxAmount: number;
+  quickAmounts: number[];
+  dailyLimitCount: number;
+  networks: string[];
+};
+
 export const withdrawApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    /* ────────── withdraw settings (fee/min/max/quick amounts/limit) ────────── */
+    getAdminWithdrawSettings: builder.query<
+      { success: boolean; settings: WithdrawSettings },
+      void
+    >({
+      query: () => `/admin/withdraw/settings`,
+      providesTags: ["WithdrawSettings"],
+    }),
+
+    updateAdminWithdrawSettings: builder.mutation<
+      { success: boolean; message: string; settings: WithdrawSettings },
+      Partial<WithdrawSettings>
+    >({
+      query: (body) => ({
+        url: `/admin/withdraw/settings`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["WithdrawSettings"],
+    }),
+
     // create new withdraw request
     createWithdrawRequest: builder.mutation<any, any>({
       query: (body) => ({
@@ -77,4 +108,6 @@ export const {
   useRejectWithdrawMutation,
   useGetPendingWithdrawsQuery,
   useAdminApproveWithdrawMutation,
+  useGetAdminWithdrawSettingsQuery,
+  useUpdateAdminWithdrawSettingsMutation,
 } = withdrawApi;

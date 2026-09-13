@@ -10,6 +10,7 @@ import {
   LifeBuoy,
   MessageSquare,
   Settings,
+  Sparkles,
   SquareGanttChart,
   TicketMinus,
   Upload,
@@ -74,10 +75,24 @@ export const NAV_ITEMS: NavItem[] = [
         label: "Pending Withdrawals",
         href: "/withdrawals/pending",
       },
+      {
+        label: "Withdraw Management",
+        href: "/withdrawals/management",
+      },
     ],
   },
 
   { key: "lottery", label: "Lottery", icon: TicketMinus, href: "/lottary" },
+  {
+    key: "lucky-card",
+    label: "Lucky Card",
+    icon: Sparkles,
+    href: "/lucky-cards",
+    children: [
+      { label: "Manage", href: "/lucky-cards" },
+      { label: "Gift a Package", href: "/lucky-cards/gift" },
+    ],
+  },
   { key: "loan", label: "Loan", icon: Landmark, href: "/loans" },
 
   {

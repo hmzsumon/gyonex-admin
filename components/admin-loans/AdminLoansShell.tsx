@@ -15,6 +15,7 @@ import AdminLoanApproveModal from "./AdminLoanApproveModal";
 import AdminLoanDetails from "./AdminLoanDetails";
 import AdminLoanHeader from "./AdminLoanHeader";
 import AdminLoanRejectModal from "./AdminLoanRejectModal";
+import AdminLoanRepaymentFeeCard from "./AdminLoanRepaymentFeeCard";
 import AdminLoanTable from "./AdminLoanTable";
 import AdminLoanTabs from "./AdminLoanTabs";
 
@@ -101,6 +102,8 @@ export default function AdminLoansShell() {
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-5">
       <AdminLoanHeader stats={stats} />
+
+      <AdminLoanRepaymentFeeCard />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <AdminLoanTabs

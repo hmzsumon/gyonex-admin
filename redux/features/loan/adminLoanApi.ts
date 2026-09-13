@@ -133,6 +133,27 @@ export const adminLoanApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Loans"],
     }),
+
+    /* ────────── Repayment fee % (admin-editable) ────────── */
+    getAdminLoanRepaymentSettings: builder.query<
+      { success: boolean; settings: { repaymentFeePercent: number } },
+      void
+    >({
+      query: () => `/loans/admin/repayment-settings`,
+      providesTags: ["LoanSettings"],
+    }),
+
+    updateAdminLoanRepaymentSettings: builder.mutation<
+      { success: boolean; message: string; settings: { repaymentFeePercent: number } },
+      { repaymentFeePercent: number }
+    >({
+      query: (body) => ({
+        url: `/loans/admin/repayment-settings`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["LoanSettings"],
+    }),
   }),
 });
 
@@ -140,4 +161,6 @@ export const {
   useGetAdminLoansQuery,
   useApproveAdminLoanMutation,
   useRejectAdminLoanMutation,
+  useGetAdminLoanRepaymentSettingsQuery,
+  useUpdateAdminLoanRepaymentSettingsMutation,
 } = adminLoanApi;

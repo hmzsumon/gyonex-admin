@@ -2,9 +2,14 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import socketUrl from '@/config/socketUrl'; // ✅ Use dedicated socket URL
 import { SocketUser } from '@/types';
+import { apiSlice } from '@/redux/features/api/apiSlice';
+import {
+	playNotificationSound,
+	unlockNotifySoundOnUserGesture,
+} from '@/lib/notifySound';
 
 interface iSocketContextType {
 	socket: Socket | null;
@@ -23,6 +28,12 @@ export const SocketContextProvider = ({
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [isSocketConnected, setIsSocketConnected] = useState(false);
 	const [onlineUsers, setOnlineUsers] = useState<SocketUser[]>([]);
+	const dispatch = useDispatch();
+
+	// পেজে প্রথম ক্লিক/কী-প্রেসে সাউন্ড আনলক করে রাখা (browser autoplay policy)
+	useEffect(() => {
+		unlockNotifySoundOnUserGesture();
+	}, []);
 
 	useEffect(() => {
 		if (!user || !user._id) return;
@@ -58,10 +69,36 @@ export const SocketContextProvider = ({
 			setOnlineUsers(users);
 		});
 
+		// ── নতুন এডমিন নোটিফিকেশন এলে: সাউন্ড + লিস্ট/ব্যাজ রিফ্রেশ ──
+		// (অ্যাডমিন প্যানেল খোলা/অনলাইনে থাকা অবস্থাতেই এটা আসে;
+		//  অফলাইনে থাকলে ব্যাকএন্ড এর বদলে web push পাঠায়)
+		const onAdminNotification = () => {
+			playNotificationSound();
+			dispatch(apiSlice.util.invalidateTags(['AdminNotifications']));
+		};
+		socket.on('admin-notification', onAdminNotification);
+
+		// ── অ্যাডমিন নিজেও একজন ইউজার — তার নিজের ব্যক্তিগত নোটিফিকেশন
+		// (deposit/withdraw/kyc ইত্যাদি) এলেও সাউন্ড বাজানো হয়।
+		const onUserNotification = () => {
+			playNotificationSound();
+			dispatch(
+				apiSlice.util.invalidateTags([
+					'MyUnreadNotifications',
+					'MyUnreadNotificationsCount',
+				]),
+			);
+		};
+		socket.on('notifications:new', onUserNotification);
+		socket.on('user-notification', onUserNotification);
+
 		return () => {
 			socket.off('getUsers');
+			socket.off('admin-notification', onAdminNotification);
+			socket.off('notifications:new', onUserNotification);
+			socket.off('user-notification', onUserNotification);
 		};
-	}, [socket]);
+	}, [socket, dispatch]);
 
 	return (
 		<SocketContext.Provider value={{ socket, isSocketConnected, onlineUsers }}>
