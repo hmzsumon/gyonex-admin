@@ -683,7 +683,7 @@ function LotteryEventCard({
               disabled={drawLoading}
               className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-4 py-2 text-xs font-black text-black disabled:opacity-60"
             >
-              <Play className="h-4 w-4" /> Draw Winner
+              <Play className="h-4 w-4" /> Preview Draw
             </button>
           )}
 

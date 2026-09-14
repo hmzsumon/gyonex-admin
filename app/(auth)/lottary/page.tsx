@@ -10,12 +10,15 @@ import {
 } from "@/components/admin/lottery/LotteryAdminComponents";
 import {
   useDrawAdminLotteryMutation,
+  usePreviewAdminLotteryMutation,
+  type LotteryDrawPreview as Preview,
   useGetAdminLotteriesQuery,
   useUpdateAdminLotteryMutation,
 } from "@/redux/features/lottery/lotteryApi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import LotteryDrawPreview from "@/components/admin/lottery/LotteryDrawPreview";
 
 /* ────────── lottery admin api message resolver helper ────────── */
 const getApiMessage = (error: any, fallback: string) =>
@@ -33,6 +36,7 @@ export default function AdminLotteryPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("all");
   const [eventType, setEventType] = useState("all");
+  const [preview, setPreview] = useState<Preview | null>(null);
 
   /* ────────── lottery admin rtk query hooks ────────── */
   const { data, isLoading } = useGetAdminLotteriesQuery({
@@ -42,6 +46,7 @@ export default function AdminLotteryPage() {
   });
   const [updateLottery] = useUpdateAdminLotteryMutation();
   const [drawLottery, drawState] = useDrawAdminLotteryMutation();
+  const [previewLottery, previewState] = usePreviewAdminLotteryMutation();
 
   /* ────────── lottery admin response data mapping ────────── */
   const lotteries = data?.data?.lotteries ?? [];
@@ -64,10 +69,21 @@ export default function AdminLotteryPage() {
   /* ────────── lottery admin draw handler ────────── */
   const handleDraw = async (id: string) => {
     try {
-      const res = await drawLottery(id).unwrap();
-      toast.success(res?.message || "Lottery draw completed successfully");
+      const res = await previewLottery(id).unwrap();
+      setPreview(res.data);
     } catch (error: any) {
-      toast.error(getApiMessage(error, "Failed to draw lottery event"));
+      toast.error(getApiMessage(error, "Failed to prepare draw preview"));
+    }
+  };
+
+  const handleConfirm = async (ticketIds: string[]) => {
+    if (!preview || drawState.isLoading) return;
+    try {
+      await drawLottery({ id: preview.eventId, previewToken: preview.previewToken, ticketIds, confirmed: true }).unwrap();
+      setPreview(null);
+      toast.success("Lottery draw confirmed. Winners published and prizes credited.");
+    } catch (error: any) {
+      toast.error(getApiMessage(error, "Failed to confirm draw"));
     }
   };
 
@@ -100,7 +116,7 @@ export default function AdminLotteryPage() {
         <LotteryEventGrid
           lotteries={lotteries}
           loading={isLoading}
-          drawLoading={drawState.isLoading}
+          drawLoading={drawState.isLoading || previewState.isLoading}
           onDraw={handleDraw}
           onCancel={handleCancel}
         />
@@ -112,6 +128,7 @@ export default function AdminLotteryPage() {
           onPageChange={setPage}
         />
       </div>
+      {preview && <LotteryDrawPreview key={preview.previewToken} preview={preview} busy={drawState.isLoading} onClose={() => setPreview(null)} onConfirm={handleConfirm} />}
     </main>
   );
 }

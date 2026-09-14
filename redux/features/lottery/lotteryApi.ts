@@ -7,6 +7,16 @@ import type {
   LotteryStatus,
 } from "./lotteryTypes";
 
+export interface LotteryDrawPreview {
+  eventId: string;
+  title: string;
+  prizeAsset: string;
+  previewToken: string;
+  totalPool: number;
+  candidates: { ticketId: string; ticketNo: string; userId: string; name: string; customerId: string }[];
+  winners: { ticketId: string; prizeTitle: string; prizeRank: number; prizeAmount: number }[];
+}
+
 /* ────────── admin lottery create and update payload type ────────── */
 export interface LotteryCreatePayload {
   eventType: LotteryEventType;
@@ -69,10 +79,16 @@ export const adminLotteryApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Lottery", "LotteryTickets"],
     }),
 
-    drawAdminLottery: builder.mutation<any, string>({
-      query: (id) => ({
+    previewAdminLottery: builder.mutation<{ success: boolean; data: LotteryDrawPreview }, string>({
+      query: (id) => ({ url: `/lottery/admin/events/${id}/draw/preview`, method: "POST" }),
+      invalidatesTags: ["Lottery"],
+    }),
+
+    drawAdminLottery: builder.mutation<any, { id: string; previewToken: string; ticketIds: string[]; confirmed: true }>({
+      query: ({ id, ...body }) => ({
         url: `/lottery/admin/events/${id}/draw`,
         method: "POST",
+        body,
       }),
       invalidatesTags: ["Lottery", "LotteryTickets", "LotteryWinners"],
     }),
@@ -86,4 +102,5 @@ export const {
   useCreateAdminLotteryMutation,
   useUpdateAdminLotteryMutation,
   useDrawAdminLotteryMutation,
+  usePreviewAdminLotteryMutation,
 } = adminLotteryApi;
