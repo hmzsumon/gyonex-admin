@@ -30,6 +30,7 @@ export type NavItem = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
+  { key: "staking", label: "Staking Management", icon: Settings, href: "/staking" },
   { key: "dashboard", label: "Dashboard", icon: Grid2x2, href: "/dashboard" },
   { key: "users", label: "All Users", icon: Users, href: "/users" },
 

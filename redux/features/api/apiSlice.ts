@@ -8,6 +8,8 @@ export const apiSlice = createApi({
 
   baseQuery: baseQueryWithReauth,
   tagTypes: [
+    "StakingSettings",
+    "StakingPlans",
     "Users",
     "Admin",
     "Pxc",
