@@ -293,6 +293,7 @@ export function LuckyCardTypeCard({
         <div className="grid gap-4 border-t border-white/10 p-4 lg:grid-cols-2">
           <LuckyPackagesEditor
             packages={cardType.packages}
+            cardPrice={cardType.price}
             onSave={(pkg) => onSavePackage({ ...pkg, cardType: cardType._id } as any)}
             onDelete={onDeletePackage}
           />
@@ -310,14 +311,16 @@ export function LuckyCardTypeCard({
 /* ────────── packages sub-editor ────────── */
 function LuckyPackagesEditor({
   packages,
+  cardPrice,
   onSave,
   onDelete,
 }: {
   packages: LuckyPackageRow[];
+  cardPrice: number;
   onSave: (pkg: Partial<LuckyPackageRow>) => void;
   onDelete: (id: string) => void;
 }) {
-  const empty = { name: "", cardCount: "3", bonusCards: "0", regularPrice: "0", price: "0" };
+  const empty = { name: "", cardCount: "3", bonusCards: "0" };
   const [form, setForm] = useState(empty);
 
   return (
@@ -326,6 +329,7 @@ function LuckyPackagesEditor({
         <Package className="h-4 w-4 text-emerald-400" /> Packages
       </div>
 
+      <p className="mb-3 text-xs text-white/50">Package price = paid card count × {formatUsdt(cardPrice)} per card. Bonus cards are free. Changing the card price updates all packages automatically.</p>
       <div className="space-y-2">
         {packages.map((p) => (
           <div
@@ -387,30 +391,16 @@ function LuckyPackagesEditor({
           onChange={(e) => setForm({ ...form, bonusCards: e.target.value })}
           className={LUCKY_INPUT_CLASS}
         />
-        <input
-          type="number"
-          placeholder="Regular price"
-          value={form.regularPrice}
-          onChange={(e) => setForm({ ...form, regularPrice: e.target.value })}
-          className={LUCKY_INPUT_CLASS}
-        />
-        <input
-          type="number"
-          placeholder="Offer price (USDT)"
-          value={form.price}
-          onChange={(e) => setForm({ ...form, price: e.target.value })}
-          className={LUCKY_INPUT_CLASS}
-        />
+        <p className="col-span-2 text-xs text-emerald-300">Package total: {formatUsdt(Number(form.cardCount || 0) * cardPrice)} · {Number(form.bonusCards || 0)} free bonus cards</p>
       </div>
       <button
         onClick={() => {
-          if (!form.name || !form.cardCount || !form.price) return;
+          if (!form.name || !Number.isInteger(Number(form.cardCount)) || Number(form.cardCount) < 1 || !Number.isInteger(Number(form.bonusCards)) || Number(form.bonusCards) < 0) return;
           onSave({
             name: form.name,
             cardCount: Number(form.cardCount),
             bonusCards: Number(form.bonusCards || 0),
-            regularPrice: Number(form.regularPrice || 0),
-            price: Number(form.price),
+
           });
           setForm(empty);
         }}
