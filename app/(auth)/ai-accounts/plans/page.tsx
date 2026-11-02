@@ -5,6 +5,7 @@
    Creating a plan auto-activates one account for the admin who created it
    (admin-only — never applies to regular users).
 ────────────────────────────────────────────────────────────────────────── */
+import SmartTradeSettingsCard from "@/components/ai-accounts/SmartTradeSettingsCard";
 import {
   IAiPlan,
   IAiPlanRow,
@@ -194,6 +195,8 @@ export default function ManageAiPlansPage() {
             Add Plan
           </button>
         </div>
+
+        <SmartTradeSettingsCard />
 
         {isLoading && (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 text-sm text-neutral-400">

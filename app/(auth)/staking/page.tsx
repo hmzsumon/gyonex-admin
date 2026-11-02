@@ -36,14 +36,14 @@ export default function StakingManagement() {
           <label className="flex items-center gap-2"><input type="checkbox" checked={settings.profitEnabled} onChange={e => setSettings({ ...settings, profitEnabled: e.target.checked })} /> Profit payouts enabled</label>
         </div>
         <label className="block max-w-xs text-sm">Cancellation fee (% of principal)
-          <input className={inputClass} type="number" min="0" max="100" step="any" readOnly value={10} />
+          <input className={inputClass} type="number" min="0" max="100" step="any" required value={settings.cancellationFeePercent} onChange={e => setSettings({ ...settings, cancellationFeePercent: e.target.valueAsNumber })} />
         </label>
         <fieldset><legend className="mb-3 font-semibold">Profit days · {settings.profitDays.length} days per week</legend>
           <div className="flex flex-wrap gap-3">{DAYS.map((day, index) => <label key={day} className="flex items-center gap-2 rounded-lg border border-white/10 p-3 text-sm">
             <input type="checkbox" checked={settings.profitDays.includes(index)} onChange={e => setSettings({ ...settings, profitDays: e.target.checked ? [...settings.profitDays, index] : settings.profitDays.filter(d => d !== index) })} />{day}
           </label>)}</div>
         </fieldset>
-        <p className="text-sm text-neutral-400">Days use Bangladesh time (Asia/Dhaka). Changes apply from today. Unchecked or paused days earn no profit. Users receive 60% of daily profit. Packages expire at 2.5 times principal up to 10,000 and 3.5 times above 10,000; renewal requires a new subscription. Cancellation is available during the first calendar month with a 10% fee.</p>
+        <p className="text-sm text-neutral-400">Days use Bangladesh time (Asia/Dhaka). Changes apply from today. Unchecked or paused days earn no profit and do not extend the package term. Already paid profit is unchanged. Principal is returned at maturity even when profit is paused.</p>
         <button className={buttonClass} disabled={saving}>{saving ? "Saving..." : "Save settings"}</button>
       </form>}
     <section className="space-y-4"><h2 className="text-xl font-semibold">Packages</h2>
