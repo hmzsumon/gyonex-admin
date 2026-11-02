@@ -136,7 +136,7 @@ export const adminLoanApi = apiSlice.injectEndpoints({
 
     /* ────────── Repayment fee % (admin-editable) ────────── */
     getAdminLoanRepaymentSettings: builder.query<
-      { success: boolean; settings: { repaymentFeePercent: number } },
+      { success: boolean; settings: { repaymentFeePercent: number; monthlyInterestPercent: number } },
       void
     >({
       query: () => `/loans/admin/repayment-settings`,
@@ -145,7 +145,7 @@ export const adminLoanApi = apiSlice.injectEndpoints({
 
     updateAdminLoanRepaymentSettings: builder.mutation<
       { success: boolean; message: string; settings: { repaymentFeePercent: number } },
-      { repaymentFeePercent: number }
+      { repaymentFeePercent?: number; monthlyInterestPercent?: number }
     >({
       query: (body) => ({
         url: `/loans/admin/repayment-settings`,
