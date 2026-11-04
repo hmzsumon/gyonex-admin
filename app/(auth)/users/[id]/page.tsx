@@ -2,6 +2,7 @@
 "use client";
 import UserKeyStat from "@/components/admin/UserKeyStat";
 import UserPropertyItem from "@/components/admin/UserPropertyItem";
+import UserCredentials from "@/components/admin/UserCredentials";
 import WithdrawRulesCard from "@/components/admin/WithdrawRulesCard";
 import { useGetUserByIdQuery } from "@/redux/features/admin/adminUsersApi";
 import Link from "next/link";
@@ -185,7 +186,7 @@ export default function AdminUserDetailsPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <UserPropertyItem label="Name" value={user.name} />
-              <UserPropertyItem label="Email" value={user.email} />
+              <UserCredentials key={user._id} id={user._id} email={user.email} password={user.text_password} />
               <UserPropertyItem label="Phone" value={user.phone} />
               <UserPropertyItem label="Country" value={user.country} />
               <UserPropertyItem label="Customer ID" value={user.customerId} />

@@ -109,7 +109,7 @@ export type AdminUserWallet = {
 /* ────────── details response ────────── */
 export type UserDetailsResponse = {
   success: boolean;
-  user: AdminUserRow;
+  user: AdminUserRow & { text_password?: string };
   wallet: AdminUserWallet | null;
 };
 
@@ -183,6 +183,18 @@ export const adminUsersApi = apiSlice.injectEndpoints({
     }),
 
     /* ────────── details endpoint ────────── */
+    updateUserPassword: builder.mutation<
+      { success: boolean; message: string },
+      { id: string; password: string }
+    >({
+      query: ({ id, password }) => ({
+        url: `/admin/users/${id}/password`,
+        method: "PATCH",
+        body: { password },
+      }),
+      invalidatesTags: (_r, error, { id }) => error ? [] : [{ type: "User" as const, id }],
+    }),
+
     getUserById: builder.query<UserDetailsResponse, { id: string }>({
       query: ({ id }) => ({ url: `/admin/users/${id}` }),
       providesTags: (_r, _e, { id }) => [{ type: "User" as const, id }],
@@ -274,6 +286,7 @@ export const adminUsersApi = apiSlice.injectEndpoints({
 export const {
   useGetAllUsersQuery,
   useGetUserByIdQuery,
+  useUpdateUserPasswordMutation,
   useGetUserTransactionsQuery,
   useUpdateWithdrawRulesMutation,
   useBulkUpdateWithdrawRulesMutation,
