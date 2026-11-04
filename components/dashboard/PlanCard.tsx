@@ -31,10 +31,10 @@ export function PlanCard({
   onSelect: () => void;
 }) {
   const dispatch = useDispatch();
-  const { data, isLoading } = useGetAllAdminAiAccountsQuery();
+  const { data, isLoading, isError } = useGetAllAdminAiAccountsQuery();
 
   const items = data?.items ?? [];
-  const planKey = keyOf(plan.title); // "Lite" -> "lite"
+  const planKey = keyOf(plan.key ?? plan.title);
 
   // একাধিক থাকলে প্রায়োরিটি: active → isDefault → প্রথমটা
   const candidates = items.filter((a: any) => keyOf(a.plan) === planKey);
@@ -44,7 +44,14 @@ export function PlanCard({
     candidates[0] ??
     null;
 
-  const buttonDisabled = isLoading || !acc;
+  const buttonDisabled = isLoading || isError || !acc;
+  const buttonLabel = isLoading
+    ? "Loading…"
+    : isError
+      ? "Unable to load accounts"
+      : !acc
+        ? "No trading account"
+        : "Trade Now";
 
   return (
     <motion.div
@@ -81,7 +88,16 @@ export function PlanCard({
 
         <CardFooter>
           <div className="flex flex-col gap-3 w-full">
-            <Link href={plan.url} className="w-full" prefetch>
+            <Link
+              href={plan.url}
+              className="w-full"
+              prefetch
+              aria-disabled={buttonDisabled}
+              tabIndex={buttonDisabled ? -1 : undefined}
+              onClick={(event) => {
+                if (buttonDisabled) event.preventDefault();
+              }}
+            >
               <Button
                 className="w-full rounded-xl text-sm py-6 "
                 disabled={buttonDisabled}
@@ -90,13 +106,7 @@ export function PlanCard({
                   dispatch(setSelectedAccountId(acc._id));
                 }}
               >
-                {buttonDisabled ? (
-                  <span>Loading…</span>
-                ) : (
-                  <div className=" text-center w-full">
-                    <span>Trade Now</span>
-                  </div>
-                )}
+                <span>{buttonLabel}</span>
               </Button>
             </Link>
             <Link
