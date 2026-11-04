@@ -134,7 +134,11 @@ const AiPositionsTable = ({
     }
 
     try {
-      await deletePositions(selectedPositionIds).unwrap();
+      const result = await deletePositions(selectedPositionIds).unwrap();
+      if (result.failures?.length) {
+        toast.error(`Closed ${result.closedCount}; ${result.failures.length} failed: ${result.failures[0].message}`);
+        return;
+      }
       setSelectedPositionIds([]);
       toast.success(
         `Successfully closed ${selectedPositionIds.length} position${

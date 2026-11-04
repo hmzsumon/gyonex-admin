@@ -285,7 +285,7 @@ export default function ConfirmTradeDrawer({
             <>
               {/* Take Profit */}
               <NumberField
-                label="Take Profit"
+                label="Take Profit (USDT)"
                 valueText={tpText}
                 onValueText={setTpText}
                 onMinus={decTP}

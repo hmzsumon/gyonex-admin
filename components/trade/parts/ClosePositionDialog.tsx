@@ -54,7 +54,7 @@ export default function ClosePositionDialog({
 
   const submit = async () => {
     try {
-      await closeAiPosition({ id: position._id, price: px }).unwrap();
+      const result = await closeAiPosition({ id: position._id, price: px }).unwrap();
 
       window.dispatchEvent(
         new CustomEvent("position:closed", { detail: { id: position._id } })
@@ -63,7 +63,9 @@ export default function ClosePositionDialog({
         new CustomEvent("toast", {
           detail: {
             kind: Number.isFinite(pnl) && pnl >= 0 ? "success" : "info",
-            text: `Order closed • P/L: ${fmt(pnl, 2)} USD`,
+            text: result.distributionPending
+              ? "Order closed. Profit delivery pending; it will retry automatically."
+              : `Order closed • P/L: ${fmt(result.position?.pnl ?? pnl, 2)} USD`,
           },
         })
       );

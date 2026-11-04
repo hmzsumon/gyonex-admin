@@ -298,7 +298,7 @@ export const aiAccountApi = apiSlice.injectEndpoints({
 
     /* ──────────delete AiPositions By IsStopLoss ────────── */
     deleteAiPositionsByIsStopLoss: builder.mutation<
-      { success: boolean; deletedCount: number; updatedAccounts: number },
+      { success: boolean; closedCount: number; failures: { id: string; message: string }[] },
       string[]
     >({
       query: (positionIds) => ({
